@@ -1,7 +1,7 @@
 // Palette for ANSI truecolor segments.
-const faceColorRgb = [241, 142, 80];
-const outlineColorRgb = [184, 210, 211]; // outline characters ▀ ▄ ▐ ▌
-const doubleLineColorRgb = [102, 169, 173]; // box-drawing ║ ═ ╔ ╗ ╚ ╝ ╠ ╣ ╦ ╩ ╬
+const faceColorRgb = [102, 169, 173];
+const outlineColorRgb = [102, 169, 173]; // outline characters ▀ ▄ ▐ ▌
+const doubleLineColorRgb = [184, 210, 211]; // box-drawing ║ ═ ╔ ╗ ╚ ╝ ╠ ╣ ╦ ╩ ╬
 
 // Glyphs for each letter, built from block and box-drawing characters to give a pixel-outline vibe.
 const letters: Record<string, string[]> = {
@@ -34,11 +34,11 @@ const letters: Record<string, string[]> = {
   ],
   E: [
     "████████╗",
+    "███╔════╝",
+    "███╚════╗",
     "████████║",
     "███╔════╝",
-    "████████╗",
-    "███╔════╝",
-    "████████╗",
+    "███╚════╗",
     "████████╝",
   ],
 };
@@ -51,7 +51,7 @@ const applyAnsiColorsToLine = (line: string): string => {
   // Map each character to a palette entry; undefined leaves the default text color intact.
   const mapCharToColor = (character: string): number[] | undefined => {
     if ("█" === character) return faceColorRgb;
-    if ("▀▄▐▌".includes(character)) return outlineColorRgb;
+    if ("▏▎▍▌▋▊▉▐▕▐▍▌▎▏".includes(character)) return outlineColorRgb;
     if ("║═╔╗╚╝╠╣╦╩╬".includes(character)) return doubleLineColorRgb;
     return undefined;
   };
@@ -103,8 +103,9 @@ const parseAnsiToSegments = (
     if (code === "0") {
       currentRgbCss = undefined;
     } else if (code.startsWith("38;2;")) {
-      const [, , , ...rgbParts] = code.split(";");
-      const [r, g, b] = rgbParts.map((n) => parseInt(n, 10));
+      // Format is 38;2;R;G;B — grab each component explicitly.
+      const [, , rStr, gStr, bStr] = code.split(";");
+      const [r, g, b] = [rStr, gStr, bStr].map((n) => parseInt(n, 10));
       currentRgbCss = `rgb(${r}, ${g}, ${b})`;
     }
     lastIndex = regex.lastIndex;
@@ -120,7 +121,7 @@ const parseAnsiToSegments = (
 const ColeLogo = () => {
   const logoLetters = ["C", "O", "L", "E"];
   // Build rows by stitching together each letter’s row with padding for spacing.
-  const mergedRows = Array.from({ length: 7 }, (_, row) =>
+  const mergedRows = Array.from({ length: 8 }, (_, row) =>
     logoLetters.map((letter) => letters[letter][row]).join("  ")
   );
 
